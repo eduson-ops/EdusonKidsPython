@@ -3,90 +3,79 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🐢 Черепашкин лабиринт</title>
+<title>maze.py — Eduson Kids</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
 /* ── Variables ─────────────────────────────────────────── */
 :root {
-  --bg:        #fef9f0;
-  --card:      #ffffff;
-  --hdr-from:  #1d4ed8;
-  --hdr-to:    #7c3aed;
-  --btn-run:   #16a34a;
-  --btn-run-h: #15803d;
-  --btn-rst:   #dc2626;
-  --btn-rst-h: #b91c1c;
-  --btn-cmd:   #2563eb;
-  --btn-cmd-h: #1d4ed8;
-  --btn-cmd2:  #d97706;
-  --btn-cmd2h: #b45309;
-  --text:      #1e293b;
-  --muted:     #64748b;
-  --border:    #e2e8f0;
-  --radius:    16px;
-  --shadow:    0 8px 32px rgba(30,58,138,.14);
+  --bg:        #0d1117;
+  --card:      #161b22;
+  --border:    #30363d;
+  --text:      #e6edf3;
+  --muted:     #7d8590;
+  --accent:    #58a6ff;
+  --green:     #3fb950;
+  --radius:    10px;
+  --shadow:    0 4px 24px rgba(0,0,0,.4);
 }
 
 /* ── Reset & base ─────────────────────────────────────── */
 *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; }
 body {
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Inter', -apple-system, sans-serif;
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 0 32px;
 }
 
 /* ── Loading overlay ──────────────────────────────────── */
 #loading-overlay {
   position: fixed; inset: 0;
-  background: linear-gradient(135deg, #1d4ed8, #7c3aed);
+  background: #0d1117;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   z-index: 999;
   transition: opacity .5s ease;
+  gap: 16px;
 }
 #loading-overlay.fade-out { opacity: 0; pointer-events: none; }
 .loading-turtle {
-  font-size: 72px;
-  animation: bounce 1s ease-in-out infinite alternate;
-  filter: drop-shadow(0 4px 12px rgba(0,0,0,.4));
+  font-size: 48px;
+  animation: spin-bob 2s ease-in-out infinite;
 }
-@keyframes bounce {
-  from { transform: translateY(0) scale(1); }
-  to   { transform: translateY(-20px) scale(1.08); }
+@keyframes spin-bob {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-12px); }
 }
 .loading-title {
-  font-family: 'Fredoka One', cursive;
-  color: white;
-  font-size: 32px;
-  margin-top: 24px;
-  letter-spacing: 1px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: .5px;
 }
 .loading-status {
-  color: rgba(255,255,255,.8);
-  font-size: 16px;
-  margin-top: 10px;
-  font-weight: 600;
-  min-height: 22px;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  min-height: 20px;
 }
 .progress-bar {
-  width: 240px; height: 8px;
-  background: rgba(255,255,255,.25);
+  width: 200px; height: 3px;
+  background: #30363d;
   border-radius: 99px;
-  margin-top: 20px;
   overflow: hidden;
 }
 .progress-fill {
   height: 100%;
-  background: #fbbf24;
+  background: var(--accent);
   border-radius: 99px;
   width: 0%;
   transition: width .4s ease;
@@ -95,279 +84,276 @@ body {
 /* ── Header ───────────────────────────────────────────── */
 header {
   width: 100%;
-  background: linear-gradient(135deg, var(--hdr-from) 0%, var(--hdr-to) 100%);
-  padding: 14px 24px;
+  background: #161b22;
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 52px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 4px 20px rgba(30,58,138,.25);
+  gap: 16px;
+}
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 .eduson-badge {
   display: flex;
   align-items: center;
-  gap: 6px;
-  background: rgba(255,255,255,.15);
-  border: 1px solid rgba(255,255,255,.3);
-  border-radius: 99px;
-  padding: 5px 12px 5px 10px;
-  font-family: 'Nunito', sans-serif;
+  gap: 7px;
   font-size: 13px;
-  color: rgba(255,255,255,.9);
-  letter-spacing: .3px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: .2px;
   white-space: nowrap;
 }
-.eduson-badge b { color: white; font-weight: 800; }
-.header-title {
-  font-family: 'Fredoka One', cursive;
-  font-size: 26px;
-  color: white;
-  letter-spacing: .5px;
-}
-.header-title span { font-size: 30px; }
-.status-badge {
-  display: flex; align-items: center; gap: 8px;
-  background: rgba(255,255,255,.15);
-  border: 1px solid rgba(255,255,255,.3);
-  border-radius: 99px;
-  padding: 6px 14px;
+.eduson-badge span { color: var(--text); }
+.eduson-icon {
+  width: 22px; height: 22px;
+  background: #f5c518;
+  color: #111;
+  border-radius: 5px;
+  font-family: 'Inter', sans-serif;
   font-size: 13px;
-  font-weight: 700;
-  color: white;
-}
-.status-dot {
-  width: 10px; height: 10px;
-  border-radius: 50%;
-  background: #fbbf24;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
-.status-dot.ready  { background: #4ade80; animation: pulse 2s infinite; }
-.status-dot.error  { background: #f87171; }
+.header-sep {
+  width: 1px; height: 18px;
+  background: var(--border);
+}
+.header-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.header-title .turtle-icon { font-size: 16px; }
+.status-badge {
+  display: flex; align-items: center; gap: 7px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--muted);
+}
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #484f58;
+  flex-shrink: 0;
+}
+.status-dot.ready { background: var(--green); animation: pulse 2.5s infinite; }
+.status-dot.error { background: #f85149; }
 @keyframes pulse {
-  0%,100% { box-shadow: 0 0 0 0 rgba(74,222,128,.5); }
-  50%      { box-shadow: 0 0 0 6px rgba(74,222,128,0); }
+  0%,100% { box-shadow: 0 0 0 0 rgba(63,185,80,.4); }
+  50%      { box-shadow: 0 0 0 5px rgba(63,185,80,0); }
 }
 
-/* ── Main content ─────────────────────────────────────── */
+/* ── Main layout ──────────────────────────────────────── */
 main {
   width: 100%;
-  max-width: 960px;
-  padding: 20px 16px 0;
+  max-width: 980px;
+  padding: 16px 16px 32px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
 /* ── Canvas section ───────────────────────────────────── */
 .canvas-section {
   background: var(--card);
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
   overflow: hidden;
-  border: 3px solid #dbeafe;
 }
 .canvas-label {
-  background: linear-gradient(90deg, #eff6ff, #f5f3ff);
-  padding: 8px 18px;
-  font-weight: 800;
-  font-size: 13px;
+  background: #161b22;
+  padding: 7px 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
   color: var(--muted);
-  letter-spacing: .5px;
-  text-transform: uppercase;
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 .hint-text {
-  font-weight: 600;
-  color: #3b82f6;
-  font-size: 12px;
-  display: flex; align-items: center; gap: 4px;
+  color: #f5c518;
+  font-size: 11px;
 }
 .canvas-wrapper {
   position: relative;
   width: 100%;
   aspect-ratio: 3 / 2;
-  background: #ecfdf5;
 }
 .canvas-wrapper canvas {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%;
-  height: 100%;
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%;
   display: block;
 }
 #turtle-cursor { pointer-events: none; }
 
-/* ── Controls ─────────────────────────────────────────── */
+/* ── Controls card ────────────────────────────────────── */
 .controls-card {
   background: var(--card);
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  border: 3px solid #dbeafe;
-  padding: 18px;
+  border: 1px solid var(--border);
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 .section-label {
-  font-weight: 800;
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 600;
   color: var(--muted);
   text-transform: uppercase;
-  letter-spacing: .6px;
-  margin-bottom: 2px;
+  letter-spacing: .8px;
+  margin-bottom: 6px;
 }
 
-/* Quick action buttons */
+/* Quick buttons */
 .quick-btns {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 .qbtn {
-  font-family: 'Nunito', sans-serif;
-  font-weight: 800;
-  font-size: 14px;
-  border: none;
-  border-radius: 10px;
-  padding: 9px 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 12px;
   cursor: pointer;
-  transition: transform .1s, filter .1s;
-  display: flex; align-items: center; gap: 6px;
+  transition: background .15s, border-color .15s, color .15s;
+  color: var(--muted);
+  background: #0d1117;
   line-height: 1;
-  color: white;
-  box-shadow: 0 3px 0 rgba(0,0,0,.15);
 }
-.qbtn:hover  { filter: brightness(1.1); }
-.qbtn:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,.15); }
-.qbtn.fwd  { background: #2563eb; }
-.qbtn.bwd  { background: #64748b; }
-.qbtn.lft  { background: #7c3aed; }
-.qbtn.rgt  { background: #db2777; }
-.qbtn.dot  { background: #d97706; }
+.qbtn:hover { background: #21262d; border-color: var(--accent); color: var(--accent); }
+.qbtn.fwd:hover, .qbtn.bwd:hover { border-color: var(--green); color: var(--green); }
+.qbtn.lft:hover, .qbtn.rgt:hover { border-color: #d2a8ff; color: #d2a8ff; }
 
 /* Code editor */
-.editor-row {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+.editor-row { display: flex; flex-direction: column; gap: 6px; }
 #code-input {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 15px;
-  line-height: 1.6;
-  background: #0f172a;
-  color: #e2e8f0;
-  border: 2px solid #334155;
-  border-radius: 12px;
-  padding: 14px 16px;
+  font-size: 14px;
+  line-height: 1.65;
+  background: #0d1117;
+  color: #e6edf3;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 14px;
   resize: vertical;
-  min-height: 96px;
+  min-height: 90px;
   outline: none;
   width: 100%;
-  caret-color: #22c55e;
-  transition: border-color .2s;
+  caret-color: var(--accent);
+  transition: border-color .15s;
 }
-#code-input::placeholder { color: #475569; }
-#code-input:focus { border-color: #3b82f6; }
+#code-input::placeholder { color: #484f58; }
+#code-input:focus { border-color: var(--accent); }
 
 /* Action buttons */
-.action-row {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
+.action-row { display: flex; gap: 8px; flex-wrap: wrap; }
 .btn {
-  font-family: 'Nunito', sans-serif;
-  font-weight: 800;
-  font-size: 16px;
-  border: none;
-  border-radius: 12px;
-  padding: 12px 28px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 9px 20px;
   cursor: pointer;
-  transition: transform .1s, filter .1s, box-shadow .1s;
-  display: flex; align-items: center; gap: 8px;
+  transition: filter .15s, opacity .15s;
+  display: flex; align-items: center; gap: 7px;
   color: white;
-  box-shadow: 0 4px 0 rgba(0,0,0,.18);
   flex: 1;
   justify-content: center;
-  min-width: 140px;
+  min-width: 120px;
 }
-.btn:hover  { filter: brightness(1.08); }
-.btn:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,.18); }
-.btn:disabled { opacity: .5; cursor: not-allowed; }
-#btn-run   { background: var(--btn-run); }
-#btn-reset { background: var(--btn-rst); }
+.btn:hover  { filter: brightness(1.1); }
+.btn:active { filter: brightness(.95); }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+#btn-run  { background: #238636; border-color: #2ea043; }
+#btn-home { background: #21262d; border-color: var(--border); color: var(--text); }
+#btn-home:hover { border-color: var(--accent); color: var(--accent); filter: none; }
 
 /* Output log */
 #output-log {
-  background: #0f172a;
-  color: #94a3b8;
-  border-radius: 12px;
-  padding: 12px 16px;
+  background: #0d1117;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 14px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  min-height: 52px;
-  max-height: 140px;
+  font-size: 12px;
+  min-height: 44px;
+  max-height: 120px;
   overflow-y: auto;
-  line-height: 1.7;
-  border: 2px solid #1e293b;
+  line-height: 1.8;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
+  color: var(--muted);
 }
-.log-line { display: flex; align-items: flex-start; gap: 8px; }
-.log-ok   { color: #4ade80; }
-.log-err  { color: #f87171; }
-.log-info { color: #60a5fa; }
-.log-hint { color: #fbbf24; }
+.log-ok   { color: var(--green); }
+.log-err  { color: #f85149; }
+.log-info { color: var(--accent); }
+.log-hint { color: #f5c518; font-weight: 600; }
 
-/* Hint card */
+/* Hint / reference */
 .hint-card {
-  background: linear-gradient(135deg, #eff6ff, #f5f3ff);
-  border: 2px solid #bfdbfe;
-  border-radius: 12px;
-  padding: 12px 16px;
+  background: #0d1117;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 10px 14px;
   font-size: 13px;
-  color: #1e40af;
+  color: var(--muted);
   line-height: 1.7;
 }
-.hint-card b { color: #7c3aed; }
+.hint-card b { color: var(--text); font-weight: 600; }
 .hint-card code {
   font-family: 'JetBrains Mono', monospace;
-  background: #dbeafe;
+  background: #21262d;
+  color: var(--accent);
   padding: 1px 6px;
   border-radius: 4px;
   font-size: 12px;
 }
 
-/* Keyboard shortcut hint */
+/* Keyboard shortcut */
 .kbd-hint {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--muted);
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  display: flex; align-items: center; gap: 4px;
 }
 kbd {
-  background: #f1f5f9;
-  border: 1px solid #cbd5e1;
-  border-radius: 5px;
-  padding: 2px 7px;
+  background: #21262d;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 6px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
-  color: #475569;
-  box-shadow: 0 2px 0 #94a3b8;
+  color: var(--muted);
 }
 
 /* ── Responsive ───────────────────────────────────────── */
 @media (max-width: 600px) {
-  .header-title { font-size: 20px; }
-  .btn { font-size: 14px; padding: 10px 18px; min-width: 110px; }
-  .qbtn { font-size: 13px; padding: 8px 12px; }
+  .header-title { font-size: 12px; }
+  .btn { font-size: 13px; padding: 8px 14px; }
+  .qbtn { font-size: 11px; }
 }
 </style>
+
 </head>
 
 <body>
@@ -375,26 +361,27 @@ kbd {
 <!-- ── Loading overlay ─────────────────────────── -->
 <div id="loading-overlay">
   <div class="loading-turtle">🐢</div>
-  <div class="loading-title">Черепашкин лабиринт</div>
-  <div class="loading-status" id="loading-msg">Загружаем Python…</div>
+  <div class="loading-title">maze.py</div>
+  <div class="loading-status" id="loading-msg">initializing python runtime…</div>
   <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
 </div>
 
 <!-- ── Header ─────────────────────────────────── -->
 <header>
-  <div style="display:flex;align-items:center;gap:14px;">
+  <div class="header-left">
     <div class="eduson-badge">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 3L3 8v8l9 5 9-5V8L12 3z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
-        <path d="M12 3v13M3 8l9 5 9-5" stroke="white" stroke-width="2" stroke-linejoin="round"/>
-      </svg>
-      <span>Eduson<b>Kids</b></span>
+      <div class="eduson-icon">E</div>
+      <span>Eduson<b style="color:var(--text)">Kids</b></span>
     </div>
-    <div class="header-title"><span>🐢</span> Черепашкин лабиринт</div>
+    <div class="header-sep"></div>
+    <div class="header-title">
+      <span class="turtle-icon">🐢</span>
+      maze.py
+    </div>
   </div>
   <div class="status-badge">
     <div class="status-dot" id="status-dot"></div>
-    <span id="status-text">Загрузка…</span>
+    <span id="status-text">загрузка…</span>
   </div>
 </header>
 
@@ -404,8 +391,8 @@ kbd {
   <!-- Canvas -->
   <div class="canvas-section">
     <div class="canvas-label">
-      🗺️ Лабиринт
-      <div class="hint-text">⭐ доберись до звезды!</div>
+      maze.py — canvas output
+      <div class="hint-text">цель: добраться до ★</div>
     </div>
     <div class="canvas-wrapper">
       <canvas id="turtle-canvas" width="900" height="600"></canvas>
@@ -418,31 +405,30 @@ kbd {
 
     <!-- Hint -->
     <div class="hint-card">
-      🐢 <b>Как управлять черепашкой?</b><br>
-      Напиши команду и нажми <b>Запустить</b>. Например:<br>
-      <code>forward(80)</code> — шаг вперёд &nbsp;•&nbsp;
-      <code>left(90)</code> — поворот налево &nbsp;•&nbsp;
-      <code>right(90)</code> — направо
+      <b>Управление черепашкой</b> — пиши команды, нажимай Run.<br>
+      <code>forward(80)</code> &nbsp;·&nbsp; <code>backward(80)</code> &nbsp;·&nbsp;
+      <code>left(90)</code> &nbsp;·&nbsp; <code>right(90)</code> &nbsp;·&nbsp;
+      <code>penup()</code> &nbsp;·&nbsp; <code>pendown()</code>
     </div>
 
     <!-- Quick buttons -->
     <div>
-      <div class="section-label">⚡ Быстрые команды</div>
+      <div class="section-label">Вставить команду</div>
       <div class="quick-btns">
-        <button class="qbtn fwd" onclick="insertCmd('forward(80)')">⬆️ вперёд</button>
-        <button class="qbtn lft" onclick="insertCmd('left(90)')">↰ влево</button>
-        <button class="qbtn rgt" onclick="insertCmd('right(90)')">↱ вправо</button>
-        <button class="qbtn bwd" onclick="insertCmd('backward(80)')">⬇️ назад</button>
-        <button class="qbtn dot" onclick="insertCmd('forward(160)')">⚡ вперёд×2</button>
-        <button class="qbtn dot" onclick="insertCmd('forward(320)')">🚀 вперёд×4</button>
+        <button class="qbtn fwd" onclick="insertCmd('forward(80)')">forward(80)</button>
+        <button class="qbtn lft" onclick="insertCmd('left(90)')">left(90)</button>
+        <button class="qbtn rgt" onclick="insertCmd('right(90)')">right(90)</button>
+        <button class="qbtn bwd" onclick="insertCmd('backward(80)')">backward(80)</button>
+        <button class="qbtn dot" onclick="insertCmd('forward(160)')">forward(160)</button>
+        <button class="qbtn dot" onclick="insertCmd('forward(320)')">forward(320)</button>
       </div>
     </div>
 
     <!-- Editor -->
     <div class="editor-row">
       <div style="display:flex;align-items:center;justify-content:space-between;">
-        <div class="section-label">💻 Твой код</div>
-        <div class="kbd-hint">Запустить: <kbd>Ctrl</kbd>+<kbd>Enter</kbd></div>
+        <div class="section-label">Код</div>
+        <div class="kbd-hint"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> — run</div>
       </div>
       <textarea id="code-input"
         placeholder="forward(80)&#10;left(90)&#10;forward(160)"
@@ -453,15 +439,15 @@ kbd {
 
     <!-- Action buttons -->
     <div class="action-row">
-      <button class="btn" id="btn-run"   onclick="runCode()" disabled>🚀 Запустить</button>
-      <button class="btn" id="btn-reset" onclick="resetPage()">🔄 Новая сессия</button>
+      <button class="btn" id="btn-run"   onclick="runCode()" disabled>▶ Run</button>
+      <button class="btn" id="btn-home"  onclick="resetMaze()">↺ Reset</button>
     </div>
 
     <!-- Output log -->
     <div>
-      <div class="section-label">📋 Вывод</div>
+      <div class="section-label">Output</div>
       <div id="output-log">
-        <div class="log-line log-info">► Загрузка Python…</div>
+        <div class="log-line log-info">// загрузка python…</div>
       </div>
     </div>
 
@@ -519,25 +505,39 @@ def _update_cursor():
         return
     cx, cy = _to_canvas(_x, _y)
     a = math.radians(_heading)
-    size = 16
-    fx = cx + size * math.cos(a)
-    fy = cy - size * math.sin(a)
-    la = a + math.radians(145)
-    ra = a - math.radians(145)
-    lx = cx + size * 0.65 * math.cos(la)
-    ly = cy - size * 0.65 * math.sin(la)
-    rx = cx + size * 0.65 * math.cos(ra)
-    ry = cy - size * 0.65 * math.sin(ra)
+    size = 26
+
+    # Body (ellipse approximated as circle)
     ctx.beginPath()
-    ctx.moveTo(fx, fy)
-    ctx.lineTo(lx, ly)
-    ctx.lineTo(rx, ry)
-    ctx.closePath()
-    ctx.fillStyle = '#22c55e'
+    ctx.arc(cx, cy, size * 0.75, 0, 2 * math.pi)
+    ctx.fillStyle = '#16a34a'
     ctx.fill()
     ctx.strokeStyle = '#14532d'
     ctx.lineWidth = 2
     ctx.stroke()
+
+    # Shell pattern
+    ctx.beginPath()
+    ctx.arc(cx, cy, size * 0.5, 0, 2 * math.pi)
+    ctx.fillStyle = '#15803d'
+    ctx.fill()
+
+    # Head
+    hx = cx + size * 1.05 * math.cos(a)
+    hy = cy - size * 1.05 * math.sin(a)
+    ctx.beginPath()
+    ctx.arc(hx, hy, size * 0.35, 0, 2 * math.pi)
+    ctx.fillStyle = '#4ade80'
+    ctx.fill()
+    ctx.strokeStyle = '#14532d'
+    ctx.lineWidth = 1.5
+    ctx.stroke()
+
+    # Direction dot on head
+    ctx.beginPath()
+    ctx.arc(hx, hy, size * 0.12, 0, 2 * math.pi)
+    ctx.fillStyle = '#14532d'
+    ctx.fill()
 
 def setup(width=900, height=600, **kwargs):
     global _canvas_w, _canvas_h, _draw_ctx, _cur_ctx
@@ -804,128 +804,104 @@ from ColabTurtlePlus.Turtle import *
 import js
 import math
 
-# ── Setup canvas ──────────────────────────────────────
 setup(900, 600)
 
-canvas = js.document.getElementById('turtle-canvas')
-ctx    = canvas.getContext('2d')
+def _draw_maze_and_reset():
+    canvas = js.document.getElementById('turtle-canvas')
+    ctx    = canvas.getContext('2d')
 
-# Soft background
-ctx.fillStyle = '#f0fdf4'
-ctx.fillRect(0, 0, 900, 600)
+    CELL  = 80
+    COLS  = 11
+    ROWS  = 7
+    OX    = (900 - COLS * CELL) // 2
+    OY    = (600 - ROWS * CELL) // 2
 
-# ── Maze definition ───────────────────────────────────
-# Grid: 11 cols × 7 rows, cell = 80 px
-# Canvas offset: off_x = 10, off_y = 20
-# Turtle coords: cell(c,r) center = (-440 + c*80 + 40, 280 - r*80 - 40)
-#
-# Start:  cell(1,5) → turtle(-320,-160), heading East
-# Goal:   cell(9,1) → turtle(320, 160)
-#
-# Solution paths:
-#   A) left(90); forward(320); right(90); forward(640)
-#   B) forward(480); left(90); forward(320); right(90); forward(160)
+    MAZE = [
+        [1,1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,0,0,0,0,0,0,1],
+        [1,0,1,1,0,1,1,0,1,1,1],
+        [1,0,1,0,0,0,1,0,1,1,1],
+        [1,0,1,1,1,1,1,0,1,1,1],
+        [1,0,0,0,0,0,0,0,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1,1],
+    ]
 
-CELL  = 80
-COLS  = 11
-ROWS  = 7
-OX    = (900 - COLS * CELL) // 2   # = 10
-OY    = (600 - ROWS * CELL) // 2   # = 20
+    ctx.fillStyle = '#f0fdf4'
+    ctx.fillRect(0, 0, 900, 600)
 
-MAZE = [
-    [1,1,1,1,1,1,1,1,1,1,1],
-    [1,0,0,0,0,0,0,0,0,0,1],
-    [1,0,1,1,0,1,1,0,1,1,1],
-    [1,0,1,0,0,0,1,0,1,1,1],
-    [1,0,1,1,1,1,1,0,1,1,1],
-    [1,0,0,0,0,0,0,0,1,1,1],
-    [1,1,1,1,1,1,1,1,1,1,1],
-]
+    ctx.fillStyle = '#ecfdf5'
+    for r, row in enumerate(MAZE):
+        for c, cell in enumerate(row):
+            if cell == 0:
+                ctx.fillRect(OX + c*CELL, OY + r*CELL, CELL, CELL)
 
-# Draw path cells first (light mint)
-ctx.fillStyle = '#ecfdf5'
-for r, row in enumerate(MAZE):
-    for c, cell in enumerate(row):
-        if cell == 0:
-            ctx.fillRect(OX + c*CELL, OY + r*CELL, CELL, CELL)
+    for r, row in enumerate(MAZE):
+        for c, cell in enumerate(row):
+            if cell == 1:
+                px = OX + c * CELL
+                py = OY + r * CELL
+                ctx.fillStyle = '#1e40af'
+                ctx.fillRect(px, py, CELL, CELL)
+                ctx.fillStyle = '#3b82f6'
+                ctx.fillRect(px, py, CELL, 5)
+                ctx.fillRect(px, py, 5, CELL)
+                ctx.fillStyle = '#1e3a8a'
+                ctx.fillRect(px, py + CELL - 5, CELL, 5)
+                ctx.fillRect(px + CELL - 5, py, 5, CELL)
 
-# Draw wall cells with 3-D bevel effect
-for r, row in enumerate(MAZE):
-    for c, cell in enumerate(row):
-        if cell == 1:
-            px = OX + c * CELL
-            py = OY + r * CELL
-            # base
-            ctx.fillStyle = '#1e40af'
-            ctx.fillRect(px, py, CELL, CELL)
-            # top + left highlight
-            ctx.fillStyle = '#3b82f6'
-            ctx.fillRect(px,      py,      CELL, 5)
-            ctx.fillRect(px,      py,      5,    CELL)
-            # bottom + right shadow
-            ctx.fillStyle = '#1e3a8a'
-            ctx.fillRect(px,      py + CELL - 5, CELL, 5)
-            ctx.fillRect(px + CELL - 5, py,      5,    CELL)
+    ctx.strokeStyle = '#bbf7d0'
+    ctx.lineWidth = 0.5
+    for r, row in enumerate(MAZE):
+        for c, cell in enumerate(row):
+            if cell == 0:
+                ctx.strokeRect(OX + c*CELL + .5, OY + r*CELL + .5, CELL - 1, CELL - 1)
 
-# Subtle grid lines on path cells
-ctx.strokeStyle = '#bbf7d0'
-ctx.lineWidth = 0.5
-for r, row in enumerate(MAZE):
-    for c, cell in enumerate(row):
-        if cell == 0:
-            ctx.strokeRect(OX + c*CELL + .5, OY + r*CELL + .5, CELL - 1, CELL - 1)
+    ctx.strokeStyle = '#1e3a8a'
+    ctx.lineWidth = 4
+    ctx.strokeRect(OX, OY, COLS * CELL, ROWS * CELL)
 
-# ── Outer border ─────────────────────────────────────
-ctx.strokeStyle = '#1e3a8a'
-ctx.lineWidth = 4
-ctx.strokeRect(OX, OY, COLS * CELL, ROWS * CELL)
+    gcx = OX + 9*CELL + CELL//2
+    gcy = OY + 1*CELL + CELL//2
+    ctx.shadowColor = '#fbbf24'
+    ctx.shadowBlur  = 20
+    ctx.beginPath()
+    ctx.arc(gcx, gcy, 28, 0, 2 * math.pi)
+    ctx.fillStyle = '#fbbf24'
+    ctx.fill()
+    ctx.shadowBlur = 0
+    ctx.strokeStyle = '#92400e'
+    ctx.lineWidth   = 3
+    ctx.stroke()
+    ctx.fillStyle     = '#92400e'
+    ctx.font          = 'bold 26px sans-serif'
+    ctx.textAlign     = 'center'
+    ctx.textBaseline  = 'middle'
+    ctx.fillText('\u2605', gcx, gcy)
 
-# ── Goal marker — cell (9,1) ─────────────────────────
-gcx = OX + 9*CELL + CELL//2
-gcy = OY + 1*CELL + CELL//2
+    scx = OX + 1*CELL + CELL//2
+    scy = OY + 5*CELL + CELL//2
+    ctx.beginPath()
+    ctx.arc(scx, scy, 18, 0, 2 * math.pi)
+    ctx.fillStyle = '#86efac'
+    ctx.fill()
+    ctx.strokeStyle = '#15803d'
+    ctx.lineWidth   = 2
+    ctx.stroke()
+    ctx.fillStyle     = '#14532d'
+    ctx.font          = '22px sans-serif'
+    ctx.textAlign     = 'center'
+    ctx.textBaseline  = 'middle'
+    ctx.fillText('\ud83d\udc22', scx, scy)
 
-# Glow
-ctx.shadowColor = '#fbbf24'
-ctx.shadowBlur  = 20
-ctx.beginPath()
-ctx.arc(gcx, gcy, 28, 0, 2 * math.pi)
-ctx.fillStyle = '#fbbf24'
-ctx.fill()
-ctx.shadowBlur = 0
-ctx.strokeStyle = '#92400e'
-ctx.lineWidth   = 3
-ctx.stroke()
+    penup()
+    goto(-320, -160)
+    setheading(0)
+    pendown()
+    pencolor('#0f172a')
+    pensize(3)
+    showturtle()
 
-ctx.fillStyle     = '#92400e'
-ctx.font          = 'bold 26px sans-serif'
-ctx.textAlign     = 'center'
-ctx.textBaseline  = 'middle'
-ctx.fillText('\u2605', gcx, gcy)  # ★
-
-# ── Start marker — cell (1,5) ────────────────────────
-scx = OX + 1*CELL + CELL//2
-scy = OY + 5*CELL + CELL//2
-ctx.beginPath()
-ctx.arc(scx, scy, 18, 0, 2 * math.pi)
-ctx.fillStyle = '#86efac'
-ctx.fill()
-ctx.strokeStyle = '#15803d'
-ctx.lineWidth   = 2
-ctx.stroke()
-ctx.fillStyle     = '#14532d'
-ctx.font          = '22px sans-serif'
-ctx.textAlign     = 'center'
-ctx.textBaseline  = 'middle'
-ctx.fillText('\ud83d\udc22', scx, scy)
-
-# ── Place turtle at start ─────────────────────────────
-penup()
-goto(-320, -160)
-setheading(0)
-pendown()
-pencolor('#0f172a')
-pensize(3)
-showturtle()
+_draw_maze_and_reset()
 </script>
 
 <!-- ══════════════════════════════════════════════════════════
@@ -966,7 +942,7 @@ function addLog(html, cls = '') {
 async function init() {
   try {
     // 1. Load Pyodide
-    setProgress(10, 'Загружаем Python…');
+    setProgress(10, 'загрузка…');
     pyodide = await loadPyodide({
       indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/'
     });
@@ -1002,11 +978,11 @@ async function init() {
     setTimeout(() => $('loading-overlay').style.display = 'none', 600);
 
     isReady = true;
-    setStatus('ready', 'Готово 🐢');
+    setStatus('ready', 'python ready');
     $('btn-run').disabled = false;
 
     log.innerHTML = '';
-    addLog('✅ Python готов! Черепашка ждёт команды.', 'log-ok');
+    addLog('// python ready — введи команды', 'log-info');
     addLog('💡 Попробуй: <code style="background:#1e293b;padding:1px 5px;border-radius:3px;color:#fbbf24">forward(80)</code> и нажми Запустить', 'log-hint');
 
   } catch (err) {
@@ -1020,31 +996,32 @@ async function init() {
 // ── Run user code ─────────────────────────────────────────
 async function runCode() {
   if (!isReady) {
-    addLog('⏳ Python ещё не загрузился, подожди секунду…', 'log-info');
+    addLog('// python ещё загружается…', 'log-info');
     return;
   }
   const code = $('code-input').value.trim();
   if (!code) {
-    addLog('⚠️ Поле пустое — напиши команду!', 'log-info');
+    addLog('// введи команду', 'log-info');
     return;
   }
 
   $('btn-run').disabled = true;
   try {
     await pyodide.runPythonAsync(code);
-    addLog('✅ Выполнено!', 'log-ok');
+    $('code-input').value = '';
+    addLog('// ok', 'log-ok');
     // Check if turtle reached the goal (approximate)
     const tx = pyodide.runPython('xcor()');
     const ty = pyodide.runPython('ycor()');
     if (Math.abs(tx - 320) < 45 && Math.abs(ty - 160) < 45) {
-      addLog('🌟 УРА! Черепашка добралась до звезды! 🎉🎊', 'log-hint');
+      addLog('★ цель достигнута!', 'log-hint');
     }
   } catch (err) {
     let msg = err.message || String(err);
     // Extract just the last line of Python traceback for kids
     const lines = msg.split('\n').filter(l => l.trim());
     const lastLine = lines[lines.length - 1] || msg;
-    addLog('❌ Ошибка: ' + lastLine, 'log-err');
+    addLog('// error: ' + lastLine, 'log-err');
   } finally {
     $('btn-run').disabled = false;
   }
@@ -1061,9 +1038,20 @@ function insertCmd(cmd) {
   ta.focus();
 }
 
-// ── Reset ─────────────────────────────────────────────────
-function resetPage() {
-  location.reload();
+// ── Reset maze without page reload ───────────────────────
+async function resetMaze() {
+  if (!isReady) { location.reload(); return; }
+  $('btn-home').disabled = true;
+  try {
+    await pyodide.runPythonAsync('_draw_maze_and_reset()');
+    $('code-input').value = '';
+    $('output-log').innerHTML = '';
+    addLog('// reset', 'log-info');
+  } catch(e) {
+    location.reload();
+  } finally {
+    $('btn-home').disabled = false;
+  }
 }
 
 // ── Keyboard shortcut: Ctrl+Enter → Run ──────────────────
