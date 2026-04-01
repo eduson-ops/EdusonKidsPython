@@ -3,79 +3,84 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>maze.py — Eduson Kids</title>
+<title>🐢 Черепашкин лабиринт</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
 /* ── Variables ─────────────────────────────────────────── */
 :root {
-  --bg:        #0d1117;
-  --card:      #161b22;
-  --border:    #30363d;
-  --text:      #e6edf3;
-  --muted:     #7d8590;
-  --accent:    #58a6ff;
-  --green:     #3fb950;
-  --radius:    10px;
-  --shadow:    0 4px 24px rgba(0,0,0,.4);
+  --bg:        #fef9f0;
+  --card:      #ffffff;
+  --hdr-from:  #1d4ed8;
+  --hdr-to:    #7c3aed;
+  --btn-run:   #2563eb;
+  --btn-rst:   #059669;
+  --text:      #1e293b;
+  --muted:     #64748b;
+  --border:    #e2e8f0;
+  --radius:    16px;
+  --shadow:    0 8px 32px rgba(30,58,138,.14);
 }
 
 /* ── Reset & base ─────────────────────────────────────── */
 *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; }
 body {
-  font-family: 'Inter', -apple-system, sans-serif;
+  font-family: 'Nunito', sans-serif;
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 0 0 32px;
 }
 
 /* ── Loading overlay ──────────────────────────────────── */
 #loading-overlay {
   position: fixed; inset: 0;
-  background: #0d1117;
+  background: linear-gradient(135deg, #1d4ed8, #7c3aed);
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   z-index: 999;
   transition: opacity .5s ease;
-  gap: 16px;
 }
 #loading-overlay.fade-out { opacity: 0; pointer-events: none; }
 .loading-turtle {
-  font-size: 48px;
-  animation: spin-bob 2s ease-in-out infinite;
+  font-size: 72px;
+  animation: bounce 1s ease-in-out infinite alternate;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,.4));
 }
-@keyframes spin-bob {
-  0%,100% { transform: translateY(0); }
-  50%      { transform: translateY(-12px); }
+@keyframes bounce {
+  from { transform: translateY(0) scale(1); }
+  to   { transform: translateY(-20px) scale(1.08); }
 }
 .loading-title {
-  font-family: 'JetBrains Mono', monospace;
-  color: var(--text);
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: .5px;
+  font-family: 'Fredoka One', cursive;
+  color: white;
+  font-size: 32px;
+  margin-top: 24px;
+  letter-spacing: 1px;
 }
 .loading-status {
-  color: var(--muted);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  min-height: 20px;
+  color: rgba(255,255,255,.8);
+  font-size: 16px;
+  margin-top: 10px;
+  font-weight: 600;
+  min-height: 22px;
 }
 .progress-bar {
-  width: 200px; height: 3px;
-  background: #30363d;
+  width: 240px; height: 8px;
+  background: rgba(255,255,255,.25);
   border-radius: 99px;
+  margin-top: 20px;
   overflow: hidden;
 }
 .progress-fill {
   height: 100%;
-  background: var(--accent);
+  background: #fbbf24;
   border-radius: 99px;
   width: 0%;
   transition: width .4s ease;
@@ -84,113 +89,111 @@ body {
 /* ── Header ───────────────────────────────────────────── */
 header {
   width: 100%;
-  background: #161b22;
-  border-bottom: 1px solid var(--border);
-  padding: 0 24px;
-  height: 52px;
+  background: linear-gradient(135deg, var(--hdr-from) 0%, var(--hdr-to) 100%);
+  padding: 14px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  box-shadow: 0 4px 20px rgba(30,58,138,.25);
 }
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
+.header-left { display: flex; align-items: center; gap: 14px; }
 .eduson-badge {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.3);
+  border-radius: 99px;
+  padding: 5px 12px 5px 6px;
+  font-family: 'Nunito', sans-serif;
   font-size: 13px;
-  font-weight: 600;
-  color: var(--muted);
-  letter-spacing: .2px;
+  color: rgba(255,255,255,.9);
   white-space: nowrap;
 }
-.eduson-badge span { color: var(--text); }
 .eduson-icon {
   width: 22px; height: 22px;
-  background: #f5c518;
-  color: #111;
-  border-radius: 5px;
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: #fbbf24;
+  color: #1a1a1a;
+  border-radius: 6px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 15px;
+  display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,.3);
 }
-.header-sep {
-  width: 1px; height: 18px;
-  background: var(--border);
-}
+.header-sep { width: 1px; height: 20px; background: rgba(255,255,255,.3); }
 .header-title {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text);
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 26px;
+  color: white;
+  letter-spacing: .5px;
+  display: flex; align-items: center; gap: 8px;
 }
-.header-title .turtle-icon { font-size: 16px; }
+.header-title span { font-size: 30px; }
 .status-badge {
-  display: flex; align-items: center; gap: 7px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  color: var(--muted);
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.3);
+  border-radius: 99px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: white;
 }
 .status-dot {
-  width: 8px; height: 8px;
+  width: 10px; height: 10px;
   border-radius: 50%;
-  background: #484f58;
+  background: #fbbf24;
   flex-shrink: 0;
 }
-.status-dot.ready { background: var(--green); animation: pulse 2.5s infinite; }
-.status-dot.error { background: #f85149; }
+.status-dot.ready  { background: #4ade80; animation: pulse 2s infinite; }
+.status-dot.error  { background: #f87171; }
 @keyframes pulse {
-  0%,100% { box-shadow: 0 0 0 0 rgba(63,185,80,.4); }
-  50%      { box-shadow: 0 0 0 5px rgba(63,185,80,0); }
+  0%,100% { box-shadow: 0 0 0 0 rgba(74,222,128,.5); }
+  50%      { box-shadow: 0 0 0 6px rgba(74,222,128,0); }
 }
 
-/* ── Main layout ──────────────────────────────────────── */
+/* ── Main content ─────────────────────────────────────── */
 main {
   width: 100%;
-  max-width: 980px;
-  padding: 16px 16px 32px;
+  max-width: 960px;
+  padding: 20px 16px 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 /* ── Canvas section ───────────────────────────────────── */
 .canvas-section {
   background: var(--card);
   border-radius: var(--radius);
-  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
   overflow: hidden;
+  border: 3px solid #dbeafe;
 }
 .canvas-label {
-  background: #161b22;
-  padding: 7px 16px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
+  background: linear-gradient(90deg, #eff6ff, #f5f3ff);
+  padding: 8px 18px;
+  font-weight: 800;
+  font-size: 13px;
   color: var(--muted);
+  letter-spacing: .5px;
+  text-transform: uppercase;
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 .hint-text {
-  color: #f5c518;
-  font-size: 11px;
+  font-weight: 600;
+  color: #3b82f6;
+  font-size: 12px;
 }
 .canvas-wrapper {
   position: relative;
   width: 100%;
   aspect-ratio: 3 / 2;
+  background: #ecfdf5;
 }
 .canvas-wrapper canvas {
   position: absolute; top: 0; left: 0;
@@ -203,154 +206,157 @@ main {
 .controls-card {
   background: var(--card);
   border-radius: var(--radius);
-  border: 1px solid var(--border);
-  padding: 16px;
+  box-shadow: var(--shadow);
+  border: 3px solid #dbeafe;
+  padding: 18px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 .section-label {
-  font-size: 11px;
-  font-weight: 600;
+  font-weight: 800;
+  font-size: 12px;
   color: var(--muted);
   text-transform: uppercase;
-  letter-spacing: .8px;
-  margin-bottom: 6px;
+  letter-spacing: .6px;
+  margin-bottom: 2px;
 }
 
-/* Quick buttons */
-.quick-btns {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
+/* Quick action buttons */
+.quick-btns { display: flex; gap: 8px; flex-wrap: wrap; }
 .qbtn {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  font-weight: 500;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 6px 12px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  border: none;
+  border-radius: 10px;
+  padding: 9px 16px;
   cursor: pointer;
-  transition: background .15s, border-color .15s, color .15s;
-  color: var(--muted);
-  background: #0d1117;
+  transition: transform .1s, filter .1s;
+  display: flex; align-items: center; gap: 6px;
   line-height: 1;
+  color: white;
+  box-shadow: 0 3px 0 rgba(0,0,0,.15);
 }
-.qbtn:hover { background: #21262d; border-color: var(--accent); color: var(--accent); }
-.qbtn.fwd:hover, .qbtn.bwd:hover { border-color: var(--green); color: var(--green); }
-.qbtn.lft:hover, .qbtn.rgt:hover { border-color: #d2a8ff; color: #d2a8ff; }
+.qbtn:hover  { filter: brightness(1.1); }
+.qbtn:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,.15); }
+.qbtn.fwd { background: #2563eb; }
+.qbtn.bwd { background: #64748b; }
+.qbtn.lft { background: #7c3aed; }
+.qbtn.rgt { background: #db2777; }
+.qbtn.dot { background: #d97706; }
 
 /* Code editor */
-.editor-row { display: flex; flex-direction: column; gap: 6px; }
+.editor-row { display: flex; flex-direction: column; gap: 8px; }
 #code-input {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 14px;
-  line-height: 1.65;
-  background: #0d1117;
-  color: #e6edf3;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 12px 14px;
+  font-size: 15px;
+  line-height: 1.6;
+  background: #0f172a;
+  color: #e2e8f0;
+  border: 2px solid #334155;
+  border-radius: 12px;
+  padding: 14px 16px;
   resize: vertical;
-  min-height: 90px;
+  min-height: 96px;
   outline: none;
   width: 100%;
-  caret-color: var(--accent);
-  transition: border-color .15s;
+  caret-color: #22c55e;
+  transition: border-color .2s;
 }
-#code-input::placeholder { color: #484f58; }
-#code-input:focus { border-color: var(--accent); }
+#code-input::placeholder { color: #475569; }
+#code-input:focus { border-color: #3b82f6; }
 
 /* Action buttons */
-.action-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.action-row { display: flex; gap: 10px; flex-wrap: wrap; }
 .btn {
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: 14px;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  padding: 9px 20px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 16px;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 28px;
   cursor: pointer;
-  transition: filter .15s, opacity .15s;
-  display: flex; align-items: center; gap: 7px;
+  transition: transform .1s, filter .1s, box-shadow .1s;
+  display: flex; align-items: center; gap: 8px;
   color: white;
+  box-shadow: 0 4px 0 rgba(0,0,0,.18);
   flex: 1;
   justify-content: center;
-  min-width: 120px;
+  min-width: 140px;
 }
-.btn:hover  { filter: brightness(1.1); }
-.btn:active { filter: brightness(.95); }
-.btn:disabled { opacity: .4; cursor: not-allowed; }
-#btn-run  { background: #238636; border-color: #2ea043; }
-#btn-home { background: #21262d; border-color: var(--border); color: var(--text); }
-#btn-home:hover { border-color: var(--accent); color: var(--accent); filter: none; }
+.btn:hover  { filter: brightness(1.08); }
+.btn:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,.18); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+#btn-run  { background: var(--btn-run); }
+#btn-home { background: var(--btn-rst); }
 
 /* Output log */
 #output-log {
-  background: #0d1117;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 10px 14px;
+  background: #0f172a;
+  color: #94a3b8;
+  border-radius: 12px;
+  padding: 12px 16px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  min-height: 44px;
-  max-height: 120px;
+  font-size: 13px;
+  min-height: 52px;
+  max-height: 140px;
   overflow-y: auto;
-  line-height: 1.8;
+  line-height: 1.7;
+  border: 2px solid #1e293b;
   display: flex;
   flex-direction: column;
-  gap: 1px;
-  color: var(--muted);
+  gap: 2px;
 }
-.log-ok   { color: var(--green); }
-.log-err  { color: #f85149; }
-.log-info { color: var(--accent); }
-.log-hint { color: #f5c518; font-weight: 600; }
+.log-line { display: flex; align-items: flex-start; gap: 8px; }
+.log-ok   { color: #4ade80; }
+.log-err  { color: #f87171; }
+.log-info { color: #60a5fa; }
+.log-hint { color: #fbbf24; }
 
-/* Hint / reference */
+/* Hint card */
 .hint-card {
-  background: #0d1117;
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--accent);
-  border-radius: 6px;
-  padding: 10px 14px;
+  background: linear-gradient(135deg, #eff6ff, #f5f3ff);
+  border: 2px solid #bfdbfe;
+  border-radius: 12px;
+  padding: 12px 16px;
   font-size: 13px;
-  color: var(--muted);
+  color: #1e40af;
   line-height: 1.7;
 }
-.hint-card b { color: var(--text); font-weight: 600; }
+.hint-card b { color: #7c3aed; }
 .hint-card code {
   font-family: 'JetBrains Mono', monospace;
-  background: #21262d;
-  color: var(--accent);
+  background: #dbeafe;
   padding: 1px 6px;
   border-radius: 4px;
   font-size: 12px;
 }
 
-/* Keyboard shortcut */
+/* Keyboard shortcut hint */
 .kbd-hint {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
-  font-family: 'JetBrains Mono', monospace;
-  display: flex; align-items: center; gap: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 kbd {
-  background: #21262d;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 1px 6px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+  padding: 2px 7px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
-  color: var(--muted);
+  color: #475569;
+  box-shadow: 0 2px 0 #94a3b8;
 }
 
 /* ── Responsive ───────────────────────────────────────── */
 @media (max-width: 600px) {
-  .header-title { font-size: 12px; }
-  .btn { font-size: 13px; padding: 8px 14px; }
-  .qbtn { font-size: 11px; }
+  .header-title { font-size: 20px; }
+  .btn { font-size: 14px; padding: 10px 18px; min-width: 110px; }
+  .qbtn { font-size: 13px; padding: 8px 12px; }
 }
 </style>
 
@@ -361,8 +367,8 @@ kbd {
 <!-- ── Loading overlay ─────────────────────────── -->
 <div id="loading-overlay">
   <div class="loading-turtle">🐢</div>
-  <div class="loading-title">maze.py</div>
-  <div class="loading-status" id="loading-msg">initializing python runtime…</div>
+  <div class="loading-title">Черепашкин лабиринт</div>
+  <div class="loading-status" id="loading-msg">Загружаем Python…</div>
   <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
 </div>
 
@@ -374,14 +380,11 @@ kbd {
       <span>Eduson<b style="color:var(--text)">Kids</b></span>
     </div>
     <div class="header-sep"></div>
-    <div class="header-title">
-      <span class="turtle-icon">🐢</span>
-      maze.py
-    </div>
+    <div class="header-title"><span>🐢</span> Черепашкин лабиринт</div>
   </div>
   <div class="status-badge">
     <div class="status-dot" id="status-dot"></div>
-    <span id="status-text">загрузка…</span>
+    <span id="status-text">Загрузка…</span>
   </div>
 </header>
 
@@ -391,8 +394,8 @@ kbd {
   <!-- Canvas -->
   <div class="canvas-section">
     <div class="canvas-label">
-      maze.py — canvas output
-      <div class="hint-text">цель: добраться до ★</div>
+      🗺️ Лабиринт
+      <div class="hint-text">⭐ доберись до звезды!</div>
     </div>
     <div class="canvas-wrapper">
       <canvas id="turtle-canvas" width="900" height="600"></canvas>
@@ -405,30 +408,31 @@ kbd {
 
     <!-- Hint -->
     <div class="hint-card">
-      <b>Управление черепашкой</b> — пиши команды, нажимай Run.<br>
-      <code>forward(80)</code> &nbsp;·&nbsp; <code>backward(80)</code> &nbsp;·&nbsp;
-      <code>left(90)</code> &nbsp;·&nbsp; <code>right(90)</code> &nbsp;·&nbsp;
-      <code>penup()</code> &nbsp;·&nbsp; <code>pendown()</code>
+      🐢 <b>Как управлять черепашкой?</b><br>
+      Напиши команду и нажми <b>Запустить</b>. Например:<br>
+      <code>forward(80)</code> — шаг вперёд &nbsp;•&nbsp;
+      <code>left(90)</code> — поворот налево &nbsp;•&nbsp;
+      <code>right(90)</code> — направо
     </div>
 
     <!-- Quick buttons -->
     <div>
-      <div class="section-label">Вставить команду</div>
+      <div class="section-label">⚡ Быстрые команды</div>
       <div class="quick-btns">
-        <button class="qbtn fwd" onclick="insertCmd('forward(80)')">forward(80)</button>
-        <button class="qbtn lft" onclick="insertCmd('left(90)')">left(90)</button>
-        <button class="qbtn rgt" onclick="insertCmd('right(90)')">right(90)</button>
-        <button class="qbtn bwd" onclick="insertCmd('backward(80)')">backward(80)</button>
-        <button class="qbtn dot" onclick="insertCmd('forward(160)')">forward(160)</button>
-        <button class="qbtn dot" onclick="insertCmd('forward(320)')">forward(320)</button>
+        <button class="qbtn fwd" onclick="insertCmd('forward(80)')">⬆️ вперёд</button>
+        <button class="qbtn lft" onclick="insertCmd('left(90)')">↰ влево</button>
+        <button class="qbtn rgt" onclick="insertCmd('right(90)')">↱ вправо</button>
+        <button class="qbtn bwd" onclick="insertCmd('backward(80)')">⬇️ назад</button>
+        <button class="qbtn dot" onclick="insertCmd('forward(160)')">⚡ вперёд×2</button>
+        <button class="qbtn dot" onclick="insertCmd('forward(320)')">🚀 вперёд×4</button>
       </div>
     </div>
 
     <!-- Editor -->
     <div class="editor-row">
       <div style="display:flex;align-items:center;justify-content:space-between;">
-        <div class="section-label">Код</div>
-        <div class="kbd-hint"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> — run</div>
+        <div class="section-label">💻 Твой код</div>
+        <div class="kbd-hint">Запустить: <kbd>Ctrl</kbd>+<kbd>Enter</kbd></div>
       </div>
       <textarea id="code-input"
         placeholder="forward(80)&#10;left(90)&#10;forward(160)"
@@ -439,15 +443,15 @@ kbd {
 
     <!-- Action buttons -->
     <div class="action-row">
-      <button class="btn" id="btn-run"   onclick="runCode()" disabled>▶ Run</button>
-      <button class="btn" id="btn-home"  onclick="resetMaze()">↺ Reset</button>
+      <button class="btn" id="btn-run"   onclick="runCode()" disabled>▶ Запустить</button>
+      <button class="btn" id="btn-home"  onclick="resetMaze()">🏠 В начало</button>
     </div>
 
     <!-- Output log -->
     <div>
-      <div class="section-label">Output</div>
+      <div class="section-label">📋 Вывод</div>
       <div id="output-log">
-        <div class="log-line log-info">// загрузка python…</div>
+        <div class="log-line log-info">► Загрузка Python…</div>
       </div>
     </div>
 
@@ -978,11 +982,11 @@ async function init() {
     setTimeout(() => $('loading-overlay').style.display = 'none', 600);
 
     isReady = true;
-    setStatus('ready', 'python ready');
+    setStatus('ready', 'Готово 🐢');
     $('btn-run').disabled = false;
 
     log.innerHTML = '';
-    addLog('// python ready — введи команды', 'log-info');
+    addLog('✅ Python готов! Черепашка ждёт команды.', 'log-ok');
     addLog('💡 Попробуй: <code style="background:#1e293b;padding:1px 5px;border-radius:3px;color:#fbbf24">forward(80)</code> и нажми Запустить', 'log-hint');
 
   } catch (err) {
@@ -996,12 +1000,12 @@ async function init() {
 // ── Run user code ─────────────────────────────────────────
 async function runCode() {
   if (!isReady) {
-    addLog('// python ещё загружается…', 'log-info');
+    addLog('⏳ Python ещё не загрузился, подожди секунду…', 'log-info');
     return;
   }
   const code = $('code-input').value.trim();
   if (!code) {
-    addLog('// введи команду', 'log-info');
+    addLog('⚠️ Поле пустое — напиши команду!', 'log-info');
     return;
   }
 
@@ -1009,19 +1013,19 @@ async function runCode() {
   try {
     await pyodide.runPythonAsync(code);
     $('code-input').value = '';
-    addLog('// ok', 'log-ok');
+    addLog('✅ Выполнено!', 'log-ok');
     // Check if turtle reached the goal (approximate)
     const tx = pyodide.runPython('xcor()');
     const ty = pyodide.runPython('ycor()');
     if (Math.abs(tx - 320) < 45 && Math.abs(ty - 160) < 45) {
-      addLog('★ цель достигнута!', 'log-hint');
+      addLog('🌟 УРА! Черепашка добралась до звезды! 🎉🎊', 'log-hint');
     }
   } catch (err) {
     let msg = err.message || String(err);
     // Extract just the last line of Python traceback for kids
     const lines = msg.split('\n').filter(l => l.trim());
     const lastLine = lines[lines.length - 1] || msg;
-    addLog('// error: ' + lastLine, 'log-err');
+    addLog('❌ Ошибка: ' + lastLine, 'log-err');
   } finally {
     $('btn-run').disabled = false;
   }
@@ -1046,7 +1050,7 @@ async function resetMaze() {
     await pyodide.runPythonAsync('_draw_maze_and_reset()');
     $('code-input').value = '';
     $('output-log').innerHTML = '';
-    addLog('// reset', 'log-info');
+    addLog('🏠 Черепашка вернулась на старт!', 'log-info');
   } catch(e) {
     location.reload();
   } finally {
