@@ -102,6 +102,21 @@ header {
   justify-content: space-between;
   box-shadow: 0 4px 20px rgba(30,58,138,.25);
 }
+.eduson-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.3);
+  border-radius: 99px;
+  padding: 5px 12px 5px 10px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  color: rgba(255,255,255,.9);
+  letter-spacing: .3px;
+  white-space: nowrap;
+}
+.eduson-badge b { color: white; font-weight: 800; }
 .header-title {
   font-family: 'Fredoka One', cursive;
   font-size: 26px;
@@ -367,7 +382,16 @@ kbd {
 
 <!-- ── Header ─────────────────────────────────── -->
 <header>
-  <div class="header-title"><span>🐢</span> Черепашкин лабиринт</div>
+  <div style="display:flex;align-items:center;gap:14px;">
+    <div class="eduson-badge">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 3L3 8v8l9 5 9-5V8L12 3z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M12 3v13M3 8l9 5 9-5" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+      </svg>
+      <span>Eduson<b>Kids</b></span>
+    </div>
+    <div class="header-title"><span>🐢</span> Черепашкин лабиринт</div>
+  </div>
   <div class="status-badge">
     <div class="status-dot" id="status-dot"></div>
     <span id="status-text">Загрузка…</span>
@@ -889,10 +913,10 @@ ctx.strokeStyle = '#15803d'
 ctx.lineWidth   = 2
 ctx.stroke()
 ctx.fillStyle     = '#14532d'
-ctx.font          = 'bold 14px Nunito, sans-serif'
+ctx.font          = '22px sans-serif'
 ctx.textAlign     = 'center'
 ctx.textBaseline  = 'middle'
-ctx.fillText('GO', scx, scy)
+ctx.fillText('\ud83d\udc22', scx, scy)
 
 # ── Place turtle at start ─────────────────────────────
 penup()
